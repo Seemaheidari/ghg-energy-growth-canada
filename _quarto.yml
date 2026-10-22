@@ -1,6 +1,14 @@
 project:
   type: website
   output-dir: _site
+  # Only the pages below; otherwise Quarto renders every .md in the repo,
+  # PROVENANCE.md and README.md included.
+  render:
+    - index.qmd
+    - method.qmd
+    - results.qmd
+    - reproduction.qmd
+    - data.qmd
   # Every page reads from results/. Rebuilding them first is what keeps the site
   # from drifting away from the code. The whole pipeline takes a few seconds.
   pre-render: run_all.R
