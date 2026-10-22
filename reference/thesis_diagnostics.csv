@@ -1,0 +1,12 @@
+geo,bp_hetero_p,bp_hetero_chi2,bg_autocorr_p,bg_autocorr_chi2
+Canada,0.1043,2.64,0.7262,6.136
+British Columbia,0.5498,0.36,0.0279,18.7
+Alberta,0.2182,1.52,0.1884,12.464
+Saskatchewan,0.4134,0.67,0.0606,16.315
+Manitoba,0.1952,1.68,0.0653,16.076
+Ontario,0.9603,0.0,0.0621,16.238
+Quebec,0.2642,1.25,0.4458,8.908
+Newfoundland and Labrador,0.3261,0.96,0.4821,8.526
+Prince Edward Island,0.8616,0.03,0.1769,12.696
+New Brunswick,0.962,0.0,0.0385,17.724
+Nova Scotia,0.2112,1.56,0.0449,17.251
