@@ -82,8 +82,9 @@ successfully, but the Quarto markdown itself is unverified. Install Quarto from
 
 Pages: *The finding* (`index.qmd`), *How it was tested* (`method.qmd`), *Full results*
 (`results.qmd`), *Reproducing the thesis* (`reproduction.qmd`), *Data* (`data.qmd`).
-`.github/workflows/publish.yml` builds and deploys to GitHub Pages on push to `main`;
-it needs a remote and Pages enabled for the `gh-pages` branch.
+`.github/workflows/publish.yml` renders and deploys to GitHub Pages on push to `main`,
+through the Pages artifact API rather than a `gh-pages` branch. Set **Settings → Pages →
+Source** to **GitHub Actions** once; nothing else is needed.
 
 ## Method, in brief
 
