@@ -3,8 +3,6 @@
 .RData
 .Ruserdata
 *.Rproj
-renv/library/
-renv/staging/
 .DS_Store
 
 # Generated — regenerate with run_all.R
