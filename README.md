@@ -17,8 +17,9 @@ the analysis in R from the surviving dataset.
 | Panel built | ✅ 11 jurisdictions × 23 years, complete |
 | Provenance recovered | ✅ StatCan table IDs and ECCC source, see [`data/raw/PROVENANCE.md`](data/raw/PROVENANCE.md) |
 | Thesis results extracted | ✅ machine-readable in [`reference/`](reference/) |
-| Analysis reimplemented | ⬜ `02`–`05` not yet written |
-| R installed on this machine | ⬜ see *Getting started* |
+| R + renv | ✅ R 4.6.1, 34 packages pinned in `renv.lock` |
+| Unit roots (`02`) | ✅ all 66 thesis statistics reproduced exactly |
+| Cointegration, causality, diagnostics | ⬜ `03`–`05` not yet written |
 
 ## Layout
 
@@ -69,7 +70,11 @@ from these same scripts so it cannot drift from the analysis.
 All variables in natural logarithms. Each jurisdiction is treated as its own time series
 and tested separately; there is no cross-sectional pooling.
 
-1. **ADF** unit root tests, levels and first differences, lag by AIC.
+1. **ADF** unit root tests, levels and first differences. The thesis does not state
+   its specification; `02_unit_roots.R` recovers it by search and reproduces all 66
+   reported statistics exactly (worst error 0.0005, which is the thesis's own
+   rounding). The convention is **a trend term in levels** with the lag varying by
+   series, and **a constant only, at lag 0**, in first differences.
 2. **Engle–Granger** two-step on the EKC single equation —
    `ln GHG ~ trend + ln GDP + (ln GDP)² + ln ENC` — against Phillips–Ouliaris critical
    values.
@@ -86,6 +91,9 @@ Cointegration appears at the national level and in Ontario on the Engle–Grange
 in five of ten provinces on the Johansen test. Ontario is the only jurisdiction where
 both agree. Greenhouse gas emissions do not predict GDP anywhere.
 
+Every series is non-stationary in levels, and 27 of 33 are stationary after first
+differencing — so the I(1) finding the cointegration tests rest on is confirmed.
+
 Two caveats carried over deliberately, both documented in `reference/`:
 
 - Canada, Saskatchewan and Newfoundland and Labrador return **full rank** on the Johansen
@@ -94,6 +102,9 @@ Two caveats carried over deliberately, both documented in `reference/`:
   over-rejects badly, so these are most likely small-sample artifacts. Phase 2 tests this.
 - The **Breusch–Pagan** results in `reference/thesis_diagnostics.csv` were computed but
   never reported in the thesis. No jurisdiction shows heteroskedasticity at the 10% level.
+- Choosing ADF lags by **AIC** rather than taking the thesis's own agrees on 43 of 66 and
+  changes the 5% conclusion in 4, all of them first differences where the thesis used lag
+  0. See `results/unit_roots_vs_thesis.csv`.
 
 ## Citation and licence
 
