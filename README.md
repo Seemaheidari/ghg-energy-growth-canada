@@ -20,7 +20,8 @@ the analysis in R from the surviving dataset.
 | R + renv | ✅ R 4.6.1, 34 packages pinned in `renv.lock` |
 | Unit roots (`02`) | ✅ all 66 thesis statistics reproduced exactly |
 | Cointegration (`03`) | ✅ Engle–Granger 11/11; Johansen 6 of 8 |
-| Causality, diagnostics | ⬜ `04`–`05` not yet written |
+| Causality (`04`) | ✅ all 77 p-values reproduced |
+| Diagnostics | ⬜ `05` not yet written |
 
 ## Layout
 
@@ -85,7 +86,10 @@ and tested separately; there is no cross-sectional pooling.
    an unrestricted trend. The squared term is absent here: `(ln GDP)²` is not a linear
    transformation of `ln GDP`, so it cannot enter a linear VAR. The two cointegration
    tests therefore examine different specifications, which is why they disagree.
-4. **Toda–Yamamoto / Wald** tests for Granger causality.
+4. **Granger causality.** Section 3 of the thesis describes the Toda–Yamamoto
+   procedure, but what reproduces the reported p-values — all 77 of them, to within
+   rounding — is a single-lag regression in log levels with a trend and an F test, with
+   no augmentation. `04` reproduces that and runs Toda–Yamamoto properly alongside.
 5. **Breusch–Godfrey** and **Breusch–Pagan** diagnostics.
 
 ## What the thesis found
@@ -98,6 +102,11 @@ Every series is non-stationary in levels, and 27 of 33 are stationary after firs
 differencing — so the I(1) finding the cointegration tests rest on is confirmed. At a lag
 order of 3, nine of the eleven Johansen ranks reproduce as reported, Ontario and Prince
 Edward Island being the exceptions.
+
+Of 77 causality tests, 13 are significant at 5% as reported. Under a correctly
+augmented Toda–Yamamoto test only 3 survive, and 12 of the 77 conclusions change. The
+headline claim — that emissions do not predict GDP in any jurisdiction — holds under
+both.
 
 Two caveats carried over deliberately, both documented in `reference/`:
 
@@ -119,6 +128,12 @@ Two caveats carried over deliberately, both documented in `reference/`:
   every lag order tested, so the Johansen result for Canada is not a lag artifact: the
   system tests as stationary, which is *not* cointegration. The thesis's claim of a
   national long-run relationship rests on Engle–Granger alone.
+- **The causality tests are not augmented.** Toda–Yamamoto exists to make the Wald
+  statistic well behaved when the variables are integrated, which these are; the extra
+  lag that does that work is missing, so the reported p-values do not have their nominal
+  distribution. The thesis's main positive finding here — that GDP and its square cause
+  energy use in five provinces — does not survive augmentation at k = 1, and partly
+  returns at k = 2. See `results/causality_vs_thesis.csv`.
 - Two Johansen statistics do not reproduce under any specification searched: **New
   Brunswick** (reported 12.04 at rank 0, nearest 32.15) and **Prince Edward Island**
   (reported 16.48 at rank 1, nearest 15.27). The reported New Brunswick figure also sits
