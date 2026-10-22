@@ -19,7 +19,8 @@ the analysis in R from the surviving dataset.
 | Thesis results extracted | ✅ machine-readable in [`reference/`](reference/) |
 | R + renv | ✅ R 4.6.1, 34 packages pinned in `renv.lock` |
 | Unit roots (`02`) | ✅ all 66 thesis statistics reproduced exactly |
-| Cointegration, causality, diagnostics | ⬜ `03`–`05` not yet written |
+| Cointegration (`03`) | ✅ Engle–Granger 11/11; Johansen 6 of 8 |
+| Causality, diagnostics | ⬜ `04`–`05` not yet written |
 
 ## Layout
 
@@ -77,7 +78,9 @@ and tested separately; there is no cross-sectional pooling.
    series, and **a constant only, at lag 0**, in first differences.
 2. **Engle–Granger** two-step on the EKC single equation —
    `ln GHG ~ trend + ln GDP + (ln GDP)² + ln ENC` — against Phillips–Ouliaris critical
-   values.
+   values. The residual test carries a constant, at lag 0 in eight jurisdictions, 1 in
+   Newfoundland and Labrador and 3 in Saskatchewan and New Brunswick. All eleven
+   reported statistics reproduce exactly.
 3. **Johansen** trace test on the three-variable system `{ln GHG, ln GDP, ln ENC}` with
    an unrestricted trend. The squared term is absent here: `(ln GDP)²` is not a linear
    transformation of `ln GDP`, so it cannot enter a linear VAR. The two cointegration
@@ -92,7 +95,9 @@ in five of ten provinces on the Johansen test. Ontario is the only jurisdiction 
 both agree. Greenhouse gas emissions do not predict GDP anywhere.
 
 Every series is non-stationary in levels, and 27 of 33 are stationary after first
-differencing — so the I(1) finding the cointegration tests rest on is confirmed.
+differencing — so the I(1) finding the cointegration tests rest on is confirmed. At a lag
+order of 3, nine of the eleven Johansen ranks reproduce as reported, Ontario and Prince
+Edward Island being the exceptions.
 
 Two caveats carried over deliberately, both documented in `reference/`:
 
@@ -105,6 +110,20 @@ Two caveats carried over deliberately, both documented in `reference/`:
 - Choosing ADF lags by **AIC** rather than taking the thesis's own agrees on 43 of 66 and
   changes the 5% conclusion in 4, all of them first differences where the thesis used lag
   0. See `results/unit_roots_vs_thesis.csv`.
+- **Lag order is not identifiable at this sample size.** Across the eleven jurisdictions
+  AIC chooses 4 almost everywhere and SC chooses 1 almost everywhere; a 3-variable VAR
+  with a trend at K = 4 fits 14 parameters per equation to 19 observations. The Johansen
+  rank therefore changes with K in **ten of the eleven** jurisdictions. `03` reports the
+  ladder at K = 2, 3 and 4 rather than choosing one.
+- **Canada is the exception, and not in the thesis's favour.** It returns full rank at
+  every lag order tested, so the Johansen result for Canada is not a lag artifact: the
+  system tests as stationary, which is *not* cointegration. The thesis's claim of a
+  national long-run relationship rests on Engle–Granger alone.
+- Two Johansen statistics do not reproduce under any specification searched: **New
+  Brunswick** (reported 12.04 at rank 0, nearest 32.15) and **Prince Edward Island**
+  (reported 16.48 at rank 1, nearest 15.27). The reported New Brunswick figure also sits
+  against the rank-1 critical value rather than the rank-0 one in the source workbook,
+  which suggests a transcription slip rather than a different specification.
 
 ## Citation and licence
 
