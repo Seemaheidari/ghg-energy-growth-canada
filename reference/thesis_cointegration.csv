@@ -1,0 +1,12 @@
+geo,eg_stat,johansen_rank,johansen_trace_at_rank
+Canada,-4.6,Full rank,Full rank
+British Columbia,-4.2,1,17.74**
+Alberta,-4.02,0,34.05*
+Saskatchewan,-2.91,Full rank,Full rank
+Manitoba,-2.98,1,6.03**
+Ontario,-5.31,2,1.70***
+Quebec,-4.01,1,13.20**
+Newfoundland and Labrador,-4.09,Full rank,Full rank
+Prince Edward Island,-3.86,1,16.48**
+New Brunswick,-4.41,0,12.04*
+Nova Scotia,-3.35,0,20.51*
