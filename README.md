@@ -22,6 +22,7 @@ the analysis in R from the surviving dataset.
 | Cointegration (`03`) | ✅ Engle–Granger 11/11; Johansen 6 of 8 |
 | Causality (`04`) | ✅ all 77 p-values reproduced |
 | Diagnostics (`05`) | ✅ both tests reproduced, 11/11 each |
+| Quarto site (`Phase 3`) | ⚠️ written, not yet rendered — Quarto not installed here |
 
 ## Layout
 
@@ -30,8 +31,9 @@ data/raw/          source workbook + PROVENANCE.md
 data/processed/    panel.csv — the one file the analysis reads
 R/                 numbered scripts, run in order
 reference/         the thesis's own results, for validating the rebuild
-results/           generated CSVs (git-ignored)
-figures/           generated plots (git-ignored)
+results/           generated CSVs — tracked, so `git diff` after a run is a regression test
+*.qmd              the website
+run_all.R          rebuild everything (a few seconds)
 ```
 
 ## Getting started
@@ -64,8 +66,24 @@ at. Scripts `02_unit_roots.R`, `03_cointegration.R`, `04_causality.R`,
 anything else worth checking, kept clearly separate from Phase 1 so that "what the thesis
 found" and "what re-examination found" never blur.
 
-**Phase 3 — presentation.** A Quarto site for a general and a technical audience, built
-from these same scripts so it cannot drift from the analysis.
+**Phase 3 — presentation.** A Quarto site for a general and a technical audience. Its
+`pre-render` step runs `run_all.R`, so the published pages are always built from a fresh
+run of the analysis and cannot drift from it.
+
+```bash
+quarto preview     # local
+quarto render      # build into _site/
+```
+
+Quarto is not installed on the machine this was written on, so the site has **not been
+rendered end to end**. Every R chunk in the five pages has been extracted and executed
+successfully, but the Quarto markdown itself is unverified. Install Quarto from
+[quarto.org](https://quarto.org/docs/get-started/) and run `quarto render` to check.
+
+Pages: *The finding* (`index.qmd`), *How it was tested* (`method.qmd`), *Full results*
+(`results.qmd`), *Reproducing the thesis* (`reproduction.qmd`), *Data* (`data.qmd`).
+`.github/workflows/publish.yml` builds and deploys to GitHub Pages on push to `main`;
+it needs a remote and Pages enabled for the `gh-pages` branch.
 
 ## Method, in brief
 

@@ -1,0 +1,97 @@
+---
+title: "Full results"
+---
+
+```{r setup}
+#| include: false
+source("R/_site_helpers.R")
+```
+
+Every table below is generated from `results/`, which is rebuilt from the source data each
+time this site is built.
+
+## Long-run relationships
+
+```{r}
+#| label: tbl-coint
+#| tbl-cap: "Cointegration by jurisdiction. Engle-Granger rejects at -4.49; Johansen rank 1 or 2 means cointegration, 0 means none, 'full' means the system tests as stationary."
+eg  <- read_result("engle_granger.csv")
+joh <- read_result("johansen.csv") |>
+  filter(K == 3) |>
+  mutate(johansen = if_else(implied_rank == 3L, "full", as.character(implied_rank)))
+
+eg |>
+  select(geo, `Engle-Granger` = thesis_stat, `cointegrated?` = thesis_coint) |>
+  left_join(select(joh, geo, `Johansen rank (K=3)` = johansen), by = "geo") |>
+  mutate(`Engle-Granger` = round(`Engle-Granger`, 3),
+         `cointegrated?` = if_else(`cointegrated?`, "yes", "no")) |>
+  rename(jurisdiction = geo)
+```
+
+Ontario is the only jurisdiction where both tests agree a long-run relationship exists.
+
+Canada returns full rank — a stationary system — at **every** lag order tested, so the
+Johansen test does not support a national long-run relationship. The national result rests
+on Engle-Granger alone.
+
+## Sensitivity to lag order
+
+```{r}
+#| label: tbl-rank-k
+#| tbl-cap: "Cointegrating rank at each lag order. The rank is unchanged across all three in only one jurisdiction."
+read_result("johansen.csv") |>
+  mutate(rank = if_else(implied_rank == 3L, "full", as.character(implied_rank))) |>
+  select(geo, K, rank) |>
+  pivot_wider(names_from = K, values_from = rank, names_prefix = "K=") |>
+  rename(jurisdiction = geo)
+```
+
+## Granger causality
+
+```{r}
+#| label: tbl-causality
+#| tbl-cap: "Number of jurisdictions (of 11) where each relationship is significant at 5%."
+read_result("causality_vs_thesis.csv") |>
+  group_by(hypothesis) |>
+  summarise(`as reported` = sum(sig_reported),
+            `Toda-Yamamoto, k=1` = sum(sig_ty_k1, na.rm = TRUE),
+            `Toda-Yamamoto, k=2` = sum(sig_ty_k2, na.rm = TRUE),
+            .groups = "drop") |>
+  arrange(desc(`as reported`)) |>
+  rename(`relationship tested` = hypothesis)
+```
+
+`ghg_to_gdp` — emissions predicting output — is zero in every column. That is the
+study's most robust result.
+
+The reported finding that output and its square drive energy use in five provinces does
+not survive a properly augmented test.
+
+## Unit roots
+
+```{r}
+#| label: tbl-adf
+#| tbl-cap: "Augmented Dickey-Fuller results. Nothing is stationary in levels."
+read_result("unit_roots.csv") |>
+  group_by(transform, variable) |>
+  summarise(tested = n(), `rejects at 5%` = sum(reject_5pct), .groups = "drop") |>
+  mutate(transform = if_else(transform == "level", "levels", "first differences")) |>
+  rename(` ` = transform)
+```
+
+## Residual diagnostics
+
+```{r}
+#| label: tbl-diag
+#| tbl-cap: "Breusch-Godfrey p-values at several lag orders, and Breusch-Pagan. The thesis used order 9."
+read_result("diagnostics.csv") |>
+  select(geo, bg_p_order1, bg_p_order2, bg_p_order3, bg_p_order4,
+         `order 9` = bg_p, `Breusch-Pagan` = bp_p) |>
+  rename_with(~ sub("bg_p_order", "order ", .x)) |>
+  mutate(across(where(is.numeric), ~ round(.x, 3))) |>
+  rename(jurisdiction = geo)
+```
+
+Autocorrelation appears at order 9 and essentially nowhere else — see the
+[reproduction page](reproduction.qmd). No jurisdiction shows heteroskedasticity at the
+10% level.

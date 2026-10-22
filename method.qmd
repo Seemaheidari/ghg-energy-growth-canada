@@ -1,0 +1,128 @@
+---
+title: "How it was tested"
+---
+
+```{r setup}
+#| include: false
+source("R/_site_helpers.R")
+```
+
+Three quantities, measured annually for each jurisdiction from 1997 to 2019:
+
+| | |
+|---|---|
+| **Emissions** | greenhouse gases, kilotonnes of CO₂ equivalent |
+| **Energy** | industrial energy use, terajoules |
+| **Output** | real GDP, millions of chained 2012 dollars |
+
+All three are used in logarithms, so coefficients read as proportional changes.
+
+## The problem these tests solve
+
+Two series that both rise over time will look related whether or not they have anything
+to do with each other. Canadian GDP rose from 1997 to 2019; so did the global population
+of house cats. A naive regression would find them strongly associated.
+
+Econometrics calls this a **spurious regression**, and the whole testing sequence below
+exists to avoid it.
+
+::: {.callout-tip collapse="true"}
+## The technical version
+
+A series with a *unit root* has no tendency to return to any particular level: shocks
+persist indefinitely, and its variance grows without bound. Regressing one such series on
+another produces high R² and significant t-statistics even when the two are independent,
+because conventional standard errors are invalid.
+
+The fix is *cointegration*. If two non-stationary series are tied together by some
+long-run equilibrium, a particular linear combination of them will be stationary even
+though neither is. Finding such a combination is evidence of a genuine relationship
+rather than a shared trend.
+:::
+
+## The sequence
+
+### 1. Is each series non-stationary?
+
+An **augmented Dickey-Fuller** test asks whether a series wanders without returning to a
+central value. Every one of the 33 series tested here does. After taking year-to-year
+differences, 27 of 33 settle down — the standard pattern, and the precondition for
+everything that follows.
+
+### 2. Do they share a long-run relationship?
+
+Two tests, which is where it gets interesting, because **they are not testing the same
+model**.
+
+::: {.panel-tabset}
+## Engle-Granger
+
+Fits one equation —
+
+$$\ln \text{GHG} = \alpha + \beta t + \gamma \ln \text{GDP} + \delta (\ln \text{GDP})^2 + \theta \ln \text{ENC} + u$$
+
+— and tests whether its residuals are stationary. If they are, the variables are tied
+together.
+
+The squared GDP term carries the *environmental Kuznets curve*: the hypothesis that
+emissions rise with income, then fall once a country is rich enough to afford cleaner
+technology. Including it is what makes this the EKC specification.
+
+## Johansen
+
+Treats the three variables as a system and asks how many independent long-run
+relationships — the *cointegrating rank* — hold among them. The rank can be 0 (no
+relationship), 1, or 2.
+
+A rank of 3, the number of variables, is a special case worth naming: it means the system
+is stationary in levels, so there is nothing to cointegrate. **Full rank is not strong
+cointegration. It is the absence of it.**
+
+The squared term cannot appear here. $(\ln \text{GDP})^2$ is not a linear transformation
+of $\ln \text{GDP}$, and this method requires a linear system.
+:::
+
+That difference is the main reason the two disagree. One tests the EKC relationship; the
+other tests a relationship without the turning point. They answer different questions, and
+reporting both is more honest than picking one.
+
+### 3. Does one predict another?
+
+**Granger causality** asks whether past values of one series improve forecasts of
+another, beyond what the second series' own history already provides.
+
+::: {.callout-warning appearance="simple"}
+This is prediction, not causation. A variable can Granger-cause another through a common
+driver neither of them controls. The name is unfortunate and has misled people for fifty
+years.
+:::
+
+When the underlying series are non-stationary, the standard test is unreliable. The
+**Toda-Yamamoto** procedure fixes this by deliberately over-fitting the model with extra
+lags and then testing only the original ones, which restores the test's distribution.
+That correction matters here — see the [reproduction page](reproduction.qmd).
+
+### 4. Are the residuals well behaved?
+
+**Breusch-Godfrey** for autocorrelation, **Breusch-Pagan** for changing error variance.
+Both are run on the single equation above.
+
+## Why the answers are fragile
+
+Every test above needs a choice of **lag order** — how far back the model looks. With 23
+observations, nothing in the data settles that choice:
+
+```{r}
+#| label: tbl-lag
+#| tbl-cap: "Parameters per equation against usable observations, for the three-variable system."
+tibble(
+  `lag order` = 2:4,
+  `parameters per equation` = 3 * (2:4) + 2,
+  `usable observations` = 23 - (2:4),
+  `residual d.f.` = (23 - (2:4)) - (3 * (2:4) + 2)
+)
+```
+
+At four lags the model fits 14 parameters to 19 observations. The standard selection
+criteria split: Akaike's picks four lags in ten of eleven jurisdictions, Schwarz's picks
+one in nine of eleven. Rather than choose, the analysis reports every answer.

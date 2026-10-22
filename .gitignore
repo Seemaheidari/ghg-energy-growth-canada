@@ -5,7 +5,12 @@
 *.Rproj
 .DS_Store
 
-# Generated — regenerate with run_all.R
-results/*.csv
+# Generated — regenerate with run_all.R.
+# results/*.csv ARE tracked: they are small, deterministic, and let the repo be
+# read without R. `git diff` after a run then doubles as a regression test.
 figures/*.png
 figures/*.pdf
+
+# Quarto
+/_site/
+/.quarto/

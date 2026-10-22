@@ -1,0 +1,48 @@
+project:
+  type: website
+  output-dir: _site
+  # Every page reads from results/. Rebuilding them first is what keeps the site
+  # from drifting away from the code. The whole pipeline takes a few seconds.
+  pre-render: run_all.R
+
+website:
+  title: "Emissions, energy and growth in Canada"
+  description: >
+    Do greenhouse gas emissions, energy use and economic output move together
+    over the long run in Canadian provinces? A reproduction and re-examination.
+  navbar:
+    left:
+      - href: index.qmd
+        text: The finding
+      - href: method.qmd
+        text: How it was tested
+      - href: results.qmd
+        text: Full results
+      - href: reproduction.qmd
+        text: Reproducing the thesis
+      - href: data.qmd
+        text: Data
+  page-footer:
+    center: >
+      Based on Sima Heidari, *Aggregation and Causality in Environmental Accounts*,
+      University of Saskatchewan, 2023.
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    code-summary: "show the code"
+    code-tools: true
+    fig-width: 7
+    fig-height: 4.5
+    df-print: kable
+
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: false

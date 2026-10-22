@@ -1,0 +1,135 @@
+---
+title: "Reproducing the thesis"
+subtitle: "What was confirmed, what changed, and what could not be reproduced"
+---
+
+```{r setup}
+#| include: false
+source("R/_site_helpers.R")
+```
+
+The original analysis was done in Stata. The do-files ran from temporary directories and
+did not survive; what remained was the final dataset, screenshots of output, and a
+workbook recording the results. Everything here was rebuilt in R from that dataset.
+
+The thesis does not state the specification for any of its tests — not which variant of
+the Dickey-Fuller regression, not how many lags, not which deterministic terms. Each had
+to be recovered by searching candidate specifications against the reported numbers. All
+of them turned out to be recoverable.
+
+## What reproduced
+
+```{r}
+#| label: tbl-repro
+#| tbl-cap: "Reproduction of every statistic the thesis reports."
+tibble(
+  test = c("Augmented Dickey-Fuller", "Engle-Granger", "Johansen trace",
+           "Granger causality", "Breusch-Godfrey", "Breusch-Pagan"),
+  reported = c(66, 11, 8, 77, 11, 11),
+  reproduced = c(66, 11, 6, 77, 11, 11),
+  `specification recovered` = c(
+    "trend in levels; constant, lag 0 in differences",
+    "residual test with a constant; lags 0, 1 and 3",
+    "unrestricted trend; lag order 3, Ontario 4",
+    "single lag in levels with a trend, F test",
+    "order 9, chi-squared",
+    "against fitted values, one degree of freedom")
+)
+```
+
+**179 of 181 reported statistics reproduce**, almost all to within the rounding of the
+thesis's own tables. That is a strong result: the arithmetic is sound.
+
+Two Johansen trace statistics could not be reproduced under any specification searched —
+New Brunswick (reported 12.04, nearest 32.15) and Prince Edward Island (reported 16.48,
+nearest 15.27). The New Brunswick figure is recorded in the source workbook against the
+wrong critical value, which suggests a transcription slip. Neither changes a conclusion.
+
+## What the re-examination changed
+
+### The causality tests are not what they claim
+
+The thesis describes the Toda-Yamamoto procedure, which adds extra lags to a model and
+tests only the original ones. That extra padding is the entire point: it is what keeps the
+test valid when the underlying series are non-stationary, as all of these are.
+
+What actually produces the reported p-values is a single-lag regression with no
+augmentation at all. The safeguard is missing.
+
+```{r}
+#| label: tbl-ty
+#| tbl-cap: "Causality results significant at 5%, before and after proper augmentation."
+read_result("causality_vs_thesis.csv") |>
+  summarise(`as reported` = sum(sig_reported),
+            `Toda-Yamamoto, k=1` = sum(sig_ty_k1, na.rm = TRUE),
+            `Toda-Yamamoto, k=2` = sum(sig_ty_k2, na.rm = TRUE),
+            `conclusions changed (k=1)` = sum(sig_reported != sig_ty_k1),
+            `of total tests` = n())
+```
+
+The headline claim survives: emissions predict output nowhere, under every specification.
+The secondary findings largely do not.
+
+### "Full rank" means the opposite of what the thesis takes it to mean
+
+For Canada, Saskatchewan and Newfoundland and Labrador, the trace test rejects at every
+rank. The thesis reads this as the strongest form of cointegration — the variables being
+"fully correlated."
+
+In this framework a rank equal to the number of variables means the system is *stationary*,
+so there is nothing to cointegrate. Full rank is the absence of a cointegrating
+relationship, not an abundance of one. And Canada returns it at every lag order tested, so
+it is not a small-sample artifact.
+
+The consequence is that **the Johansen test does not support the thesis's national
+finding.** That finding rests on Engle-Granger alone.
+
+### The autocorrelation problem is probably an artifact
+
+The thesis runs Breusch-Godfrey at order 9, finds autocorrelation in three provinces, and
+concludes the model "would be misspecified." But at order 9 the auxiliary regression
+carries 14 regressors on 23 observations.
+
+```{r}
+#| label: fig-bg
+#| fig-cap: "Breusch-Godfrey p-values. British Columbia rejects at order 9 and nowhere else."
+read_result("diagnostics.csv") |>
+  select(geo, `1` = bg_p_order1, `2` = bg_p_order2, `3` = bg_p_order3,
+         `4` = bg_p_order4, `9` = bg_p) |>
+  pivot_longer(-geo, names_to = "order", values_to = "p") |>
+  mutate(order = factor(as.integer(order)), grp = highlight(geo),
+         bc = geo == "British Columbia") |>
+  ggplot(aes(order, p, group = geo)) +
+  geom_hline(yintercept = 0.05, linetype = "dashed", colour = "grey50") +
+  geom_line(aes(colour = bc, linewidth = bc), alpha = 0.8) +
+  scale_colour_manual(values = c(`FALSE` = "grey70", `TRUE` = PALETTE[["oil"]])) +
+  scale_linewidth_manual(values = c(`FALSE` = 0.4, `TRUE` = 1.2)) +
+  labs(x = "Breusch-Godfrey lag order", y = "p-value",
+       caption = paste("Dashed line: 5%. British Columbia highlighted.",
+                       "Genuine serial correlation shows at low orders\nand fades;",
+                       "this does the reverse.")) +
+  theme_site()
+```
+
+Rejections at 5% by order: **1, 0, 0, 1 — and then 3 at order 9.** British Columbia
+rejects hardest at order 9 (p = 0.028) but sits at 0.66, 0.75, 0.88 and 0.24 at the lower
+orders. That is not what serial correlation looks like. The misspecification the thesis
+worries about may not be there.
+
+### A result that was computed and never reported
+
+The Breusch-Pagan heteroskedasticity results exist in the author's workbook but appear
+nowhere in the document. **No jurisdiction shows heteroskedasticity at the 10% level**,
+under either the Stata version or Koenker's. It is a clean result that supports the
+specification, and it should have been in the thesis.
+
+## Two things the data say that the thesis does not
+
+**Canada is the sum of its parts.** The source workbook records that the national GDP and
+emissions series were built by adding the provinces up, not taken from a separately
+published national series. Checking confirms it. For a study about aggregation this
+matters: the national series is an accounting identity over the provincial ones.
+
+**Emissions do not come from Statistics Canada.** The thesis says all three series do.
+GDP and energy use do; emissions come from Environment and Climate Change Canada's
+official inventory.
