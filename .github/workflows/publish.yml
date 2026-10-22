@@ -5,11 +5,20 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Deploys through the Pages artifact API rather than a gh-pages branch, so
+# nothing has to exist before the first run. Set Settings > Pages > Source to
+# "GitHub Actions" once.
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,8 +35,19 @@ jobs:
 
       # The site's pre-render step runs run_all.R, so the published pages are
       # always built from a fresh run of the analysis.
-      - uses: quarto-dev/quarto-actions/publish@v2
+      - name: Render site
+        run: quarto render
+
+      - uses: actions/upload-pages-artifact@v3
         with:
-          target: gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
