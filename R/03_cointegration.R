@@ -21,11 +21,13 @@
 # vars pulls in MASS, which masks dplyr::select(). run_all.R sources every script
 # into one session, so the masking outlives this file and load order cannot fix
 # it: select() is qualified throughout 03, 04 and 05 instead.
-library(vars)
-library(dplyr)
-library(tidyr)
-library(readr)
-library(urca)
+suppressPackageStartupMessages({
+  library(vars)
+  library(dplyr)
+  library(tidyr)
+  library(readr)
+  library(urca)
+})
 
 MAX_LAG <- 4L
 

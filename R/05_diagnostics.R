@@ -23,10 +23,12 @@
 # The Breusch-Pagan results never appear in the thesis. They are computed in the
 # author's workbook and reported here for the first time.
 
-library(dplyr)
-library(tidyr)
-library(readr)
-library(lmtest)
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tidyr)
+  library(readr)
+  library(lmtest)
+})
 
 BG_ORDER_THESIS <- 9L
 BG_ORDERS       <- 1:4

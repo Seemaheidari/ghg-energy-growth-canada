@@ -19,10 +19,12 @@
 # author's saved Stata output. The repository reports its own AIC-selected
 # results alongside, in section 5.
 
-library(dplyr)
-library(tidyr)
-library(readr)
-library(urca)
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tidyr)
+  library(readr)
+  library(urca)
+})
 
 MAX_LAG <- 4L
 

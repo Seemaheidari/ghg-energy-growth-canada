@@ -22,9 +22,11 @@
 # safeguard the cited procedure exists to provide is absent. Section 3 below
 # therefore runs Toda-Yamamoto properly alongside, and reports where the two differ.
 
-library(dplyr)
-library(tidyr)
-library(readr)
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tidyr)
+  library(readr)
+})
 
 DMAX <- 1L   # every series is I(1); see results/unit_roots.csv
 
