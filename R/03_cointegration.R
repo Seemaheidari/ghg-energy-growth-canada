@@ -18,7 +18,9 @@
 # (ln GDP)^2 cannot enter the Johansen system: it is not a linear transformation of
 # ln GDP, so a linear VAR cannot carry both.
 
-# vars loads MASS, whose select() would mask dplyr's; load it first.
+# vars pulls in MASS, which masks dplyr::select(). run_all.R sources every script
+# into one session, so the masking outlives this file and load order cannot fix
+# it: select() is qualified throughout 03, 04 and 05 instead.
 library(vars)
 library(dplyr)
 library(tidyr)
@@ -126,7 +128,7 @@ joh <- expand_grid(geo = jurisdictions, K = K_RANGE) |>
          trace_r1 = vapply(ts, `[`, numeric(1), 2),
          trace_r2 = vapply(ts, `[`, numeric(1), 3),
          implied_rank = vapply(ts, implied_rank, integer(1))) |>
-  select(-ts)
+  dplyr::select(-ts)
 
 # K that reproduces each reported statistic at its reported rank.
 recovered <- lapply(jurisdictions, function(g) {
@@ -140,7 +142,7 @@ recovered <- lapply(jurisdictions, function(g) {
   best <- which.min(abs(vals - tgt))
   tibble(geo = g, thesis_K = cand$K[best], repro_trace = vals[best])
 }) |> bind_rows() |>
-  left_join(select(thesis, geo, thesis_rank = johansen_rank,
+  left_join(dplyr::select(thesis, geo, thesis_rank = johansen_rank,
                    thesis_trace = johansen_trace_at_rank), by = "geo") |>
   mutate(repro_error = repro_trace - thesis_trace)
 
@@ -171,9 +173,9 @@ if (nrow(miss)) {
 
 message("\nRank implied by the sequential trace test, by lag order:")
 ranks <- joh |>
-  select(geo, K, implied_rank) |>
+  dplyr::select(geo, K, implied_rank) |>
   pivot_wider(names_from = K, values_from = implied_rank, names_prefix = "K=") |>
-  left_join(select(thesis, geo, thesis = johansen_rank), by = "geo")
+  left_join(dplyr::select(thesis, geo, thesis = johansen_rank), by = "geo")
 print(as.data.frame(ranks), row.names = FALSE)
 
 stable <- joh |> group_by(geo) |> summarise(n = n_distinct(implied_rank)) |>
@@ -187,9 +189,9 @@ message(sprintf("full rank (a stationary system, i.e. no cointegration) in %d of
                 nrow(full), nrow(joh)))
 
 comparison <- eg |>
-  select(geo, eg_thesis = thesis_stat, eg_repro = repro_stat,
+  dplyr::select(geo, eg_thesis = thesis_stat, eg_repro = repro_stat,
          eg_coint = thesis_coint) |>
-  left_join(select(recovered, geo, joh_thesis_rank = thesis_rank), by = "geo") |>
+  left_join(dplyr::select(recovered, geo, joh_thesis_rank = thesis_rank), by = "geo") |>
   left_join(ranks[, c("geo", "K=3")], by = "geo") |>
   rename(joh_rank_K3 = `K=3`) |>
   mutate(both = eg_coint & joh_rank_K3 %in% 1:2)

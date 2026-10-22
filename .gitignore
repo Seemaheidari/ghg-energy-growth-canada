@@ -11,6 +11,11 @@
 figures/*.png
 figures/*.pdf
 
+# Claude Code local preview config
+/.claude/
+
 # Quarto
 /_site/
 /.quarto/
+
+**/*.quarto_ipynb

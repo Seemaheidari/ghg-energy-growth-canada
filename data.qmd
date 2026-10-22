@@ -71,6 +71,7 @@ read_csv("data/processed/panel.csv", show_col_types = FALSE) |>
   scale_colour_manual(values = PALETTE) +
   scale_linewidth_manual(values = c(`FALSE` = 0.4, `TRUE` = 1)) +
   facet_wrap(~ series) +
+  scale_x_continuous(breaks = c(2000, 2010)) +
   labs(x = NULL, y = "1997 = 100") +
   theme_site() +
   theme(panel.grid.major.y = element_line(colour = "grey92"))

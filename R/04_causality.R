@@ -105,7 +105,7 @@ results <- expand_grid(geo = jurisdictions, hypothesis = names(HYP)) |>
     p_ty_k2       = toda_yamamoto(vars_of(geo), dep, HYP[[hypothesis]][[2]], 2L)
   ) |>
   ungroup() |>
-  select(-dep)
+  dplyr::select(-dep)
 
 reported <- thesis |>
   pivot_longer(-geo, names_to = "hypothesis", values_to = "p_reported")

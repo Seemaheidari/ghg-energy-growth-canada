@@ -75,7 +75,7 @@ write_csv(diagnostics, "results/diagnostics.csv")
 # --- 3. comparison ----------------------------------------------------------
 
 comparison <- diagnostics |>
-  select(geo, bg_chi2, bg_p, bp_chi2, bp_p) |>
+  dplyr::select(geo, bg_chi2, bg_p, bp_chi2, bp_p) |>
   inner_join(thesis, by = "geo") |>
   mutate(d_bg = bg_chi2 - bg_autocorr_chi2,
          d_bp = bp_chi2 - bp_hetero_chi2)
@@ -100,7 +100,7 @@ message(sprintf(" 10%%: %s", paste(main$geo[main$bg_p >= 0.05 & main$bg_p < 0.10
 
 message("\nBreusch-Godfrey p-values by order (9 is the thesis's):")
 tbl <- diagnostics |>
-  select(geo, starts_with("bg_p_order"), `order9` = bg_p)
+  dplyr::select(geo, starts_with("bg_p_order"), `order9` = bg_p)
 print(as.data.frame(tbl), row.names = FALSE, digits = 3)
 
 message(sprintf(
