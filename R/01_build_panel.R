@@ -7,9 +7,11 @@
 # The workbook is the final dataset from Sima Heidari's 2023 Master's project.
 # Its "Sources" sheet records the upstream series; see data/raw/PROVENANCE.md.
 
-library(readxl)
-library(dplyr)
-library(readr)
+suppressPackageStartupMessages({
+  library(readxl)
+  library(dplyr)
+  library(readr)
+})
 
 SRC <- "data/raw/Total Industries Real GDP&GHG&EU 1997-2019Stata.xlsx"
 OUT <- "data/processed/panel.csv"
