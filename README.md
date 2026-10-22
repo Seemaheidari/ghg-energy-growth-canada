@@ -21,7 +21,7 @@ the analysis in R from the surviving dataset.
 | Unit roots (`02`) | ✅ all 66 thesis statistics reproduced exactly |
 | Cointegration (`03`) | ✅ Engle–Granger 11/11; Johansen 6 of 8 |
 | Causality (`04`) | ✅ all 77 p-values reproduced |
-| Diagnostics | ⬜ `05` not yet written |
+| Diagnostics (`05`) | ✅ both tests reproduced, 11/11 each |
 
 ## Layout
 
@@ -90,7 +90,9 @@ and tested separately; there is no cross-sectional pooling.
    procedure, but what reproduces the reported p-values — all 77 of them, to within
    rounding — is a single-lag regression in log levels with a trend and an F test, with
    no augmentation. `04` reproduces that and runs Toda–Yamamoto properly alongside.
-5. **Breusch–Godfrey** and **Breusch–Pagan** diagnostics.
+5. **Breusch–Godfrey** (order 9, χ²) and **Breusch–Pagan** (against fitted values, one
+   degree of freedom — Stata's `estat hettest`) on the EKC equation. Both reproduce
+   exactly.
 
 ## What the thesis found
 
@@ -108,6 +110,10 @@ augmented Toda–Yamamoto test only 3 survive, and 12 of the 77 conclusions chan
 headline claim — that emissions do not predict GDP in any jurisdiction — holds under
 both.
 
+Phase 1 is complete. Every statistic the thesis reports has been reproduced from the
+data except two Johansen trace values; the specification behind each test was recovered
+by search, since the thesis states none of them.
+
 Two caveats carried over deliberately, both documented in `reference/`:
 
 - Canada, Saskatchewan and Newfoundland and Labrador return **full rank** on the Johansen
@@ -115,7 +121,16 @@ Two caveats carried over deliberately, both documented in `reference/`:
   finding that every series is I(1). With 23 annual observations the trace statistic
   over-rejects badly, so these are most likely small-sample artifacts. Phase 2 tests this.
 - The **Breusch–Pagan** results in `reference/thesis_diagnostics.csv` were computed but
-  never reported in the thesis. No jurisdiction shows heteroskedasticity at the 10% level.
+  never reported in the thesis. No jurisdiction shows heteroskedasticity at the 10% level,
+  under either the Stata version or Koenker's — a clean result that should have been in
+  the document.
+- **The autocorrelation problem is probably an artifact of the lag order.** The thesis
+  runs Breusch–Godfrey at order 9, where the auxiliary regression carries 14 regressors
+  on 23 observations, and finds significant autocorrelation in three provinces. At orders
+  1 through 4 the rejections are 1, 0, 0 and 1. British Columbia, which rejects hardest
+  at order 9 (p = 0.028), has p = 0.66, 0.75, 0.88 and 0.24 at the lower orders — the
+  opposite of what genuine serial correlation looks like. The misspecification the thesis
+  worries about in section 4 may not be there.
 - Choosing ADF lags by **AIC** rather than taking the thesis's own agrees on 43 of 66 and
   changes the 5% conclusion in 4, all of them first differences where the thesis used lag
   0. See `results/unit_roots_vs_thesis.csv`.
