@@ -177,7 +177,8 @@ Two caveats carried over deliberately, both documented in `reference/`:
 ## Citation and licence
 
 The underlying work is Sima Heidari's. Code is MIT licensed; see
-[`LICENSE`](LICENSE) and [`CITATION.cff`](CITATION.cff).
+[`LICENSE`](LICENSE) and [`CITATION.cff`](CITATION.cff). The MIT licence covers the code
+only — it is not mine or the author's to apply to the data.
 
 Data are redistributed under the Statistics Canada Open Licence and the Open Government
 Licence – Canada and are not covered by the MIT licence; see
