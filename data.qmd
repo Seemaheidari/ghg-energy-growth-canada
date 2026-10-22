@@ -1,0 +1,89 @@
+---
+title: "Data"
+---
+
+```{r setup}
+#| include: false
+source("R/_site_helpers.R")
+```
+
+Eleven jurisdictions — ten provinces and Canada — observed annually from 1997 to 2019.
+**253 complete observations, no missing values.**
+
+```{r}
+#| label: tbl-coverage
+#| tbl-cap: "Coverage of the analysis panel."
+read_csv("data/processed/panel.csv", show_col_types = FALSE) |>
+  filter(in_study) |>
+  summarise(jurisdictions = n_distinct(geo),
+            years = n_distinct(year),
+            `first year` = min(year), `last year` = max(year),
+            observations = n(),
+            `missing values` = sum(if_any(c(gdp_real_2012, ghg_kt, energy_tj), is.na)))
+```
+
+## Sources
+
+| Variable | Unit | Source |
+|---|---|---|
+| Real GDP, chained 2012 dollars | millions | Statistics Canada table [36-10-0402-01](https://www150.statcan.gc.ca/t1/tbl1/en/cv.action?pid=3610040201) |
+| Industrial energy use, final demand | terajoules | Statistics Canada table [25-10-0029-01](https://www150.statcan.gc.ca/t1/tbl1/en/cv.action?pid=2510002901) |
+| Greenhouse gas emissions | kilotonnes CO₂e | [Canada's Official Greenhouse Gas Inventory](https://data.ec.gc.ca/data/substances/monitor/canada-s-official-greenhouse-gas-inventory/A-IPCC-Sector/?lang=en), Environment and Climate Change Canada |
+
+Industry coverage follows the NAICS classification, total of all industries. Statistics
+Canada material is used under the [Statistics Canada Open
+Licence](https://www.statcan.gc.ca/en/reference/licence), ECCC material under the [Open
+Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada).
+
+::: {.callout-note collapse="true"}
+## Two things worth knowing about the national series
+
+**Canada is the sum of its parts.** Both GDP and emissions for "Canada" were obtained by
+adding the jurisdictions together rather than taken from a separately published national
+series — the panel confirms it to rounding. For a study about aggregation, the national
+series is therefore an accounting identity over the provincial ones, not an independent
+measurement.
+
+**The territories are excluded.** Yukon, the Northwest Territories and Nunavut are
+carried in the dataset but not analysed: Nunavut and the NWT have essentially no emissions
+coverage in this vintage.
+:::
+
+## The series
+
+```{r}
+#| label: fig-series
+#| fig-cap: "All three series, indexed to 1997 = 100. Alberta and Saskatchewan in orange, Ontario in blue."
+read_csv("data/processed/panel.csv", show_col_types = FALSE) |>
+  filter(in_study, geo != "Canada") |>
+  pivot_longer(c(gdp_real_2012, ghg_kt, energy_tj),
+               names_to = "series", values_to = "value") |>
+  mutate(series = recode(series, gdp_real_2012 = "real GDP",
+                         ghg_kt = "emissions", energy_tj = "energy use")) |>
+  group_by(geo, series) |>
+  arrange(year) |>
+  mutate(index = 100 * value / first(value)) |>
+  ungroup() |>
+  mutate(grp = highlight(geo)) |>
+  ggplot(aes(year, index, group = geo, colour = grp)) +
+  geom_hline(yintercept = 100, colour = "grey85") +
+  geom_line(aes(linewidth = grp != "other"), alpha = 0.85) +
+  scale_colour_manual(values = PALETTE) +
+  scale_linewidth_manual(values = c(`FALSE` = 0.4, `TRUE` = 1)) +
+  facet_wrap(~ series) +
+  labs(x = NULL, y = "1997 = 100") +
+  theme_site() +
+  theme(panel.grid.major.y = element_line(colour = "grey92"))
+```
+
+## Reproducing this
+
+```bash
+git clone <repository>
+cd ghg-energy-growth-canada
+Rscript -e 'renv::restore()'
+Rscript run_all.R
+```
+
+The pipeline takes a few seconds. `results/` is committed, so `git diff` after a run
+shows whether anything has changed.

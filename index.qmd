@@ -1,0 +1,98 @@
+---
+title: "Where emissions and growth move together"
+subtitle: "And where, surprisingly, they do not"
+---
+
+```{r setup}
+#| include: false
+source("R/_site_helpers.R")
+```
+
+If you had to guess which Canadian provinces show the tightest long-run link between
+greenhouse gas emissions and economic output, you would probably say the oil producers.
+Alberta and Saskatchewan earn their living from carbon-intensive extraction. When their
+economies grow, emissions should grow with them.
+
+The data say otherwise.
+
+```{r}
+#| label: fig-eg
+#| fig-cap: "Whether each jurisdiction shows a long-run relationship between emissions, energy use and output."
+plot_eg()
+```
+
+**Ontario shows the strongest relationship of any jurisdiction in the country. Saskatchewan
+shows the weakest.** Alberta sits in the middle of the pack, well short of significance.
+The two provinces where the connection between carbon and money is most obvious to the
+naked eye are the two where it is hardest to detect statistically.
+
+## The question
+
+Economic growth, energy use and greenhouse gas emissions are bound together — but how
+tightly, and does the answer depend on where you look?
+
+Most of what is known comes from national studies. Canada is treated as one economy, and
+a single answer comes out. But Canada is not one economy. A province built on oil sands
+and a province built on hydroelectricity and manufacturing have little in common beyond
+a currency.
+
+This study asks whether the national answer survives when you look underneath it:
+**eleven jurisdictions — ten provinces and Canada as a whole — each tested separately,
+1997 to 2019.**
+
+## What it finds
+
+::: {.callout-note appearance="simple"}
+### Three results
+
+**1. The national relationship does not decompose.** A long-run relationship shows up for
+Canada as a whole on one test, but not in most of the provinces that make up Canada. The
+country's answer is not the average of its parts.
+
+**2. The provinces where you would most expect a link are where it is weakest.** The
+likely reason is that Alberta and Saskatchewan's output is driven by oil prices. The 2008
+crash and the 2014–16 price collapse moved their GDP violently without moving physical
+emissions in step, breaking the statistical relationship even though the physical one is
+real. Ontario's path was shaped instead by a coal phase-out completed in 2014 and a long
+manufacturing decline — changes that moved emissions, energy and output together.
+
+**3. Emissions do not predict economic growth anywhere.** Not in any province, not
+nationally, under every specification tested. This is the most robust finding here.
+:::
+
+## How much to believe
+
+Each jurisdiction supplies **23 annual observations**. That is a short series for this
+kind of econometrics, and it shows up everywhere in the results:
+
+- The cointegrating rank — the formal measure of how many long-run relationships exist —
+  **changes with an arbitrary modelling choice in ten of the eleven jurisdictions**.
+- Standard criteria for making that choice disagree completely: one picks the largest
+  option almost everywhere, another the smallest.
+- Of 77 causality tests, 13 are significant as originally reported. Under a more
+  conservative procedure, 3 survive.
+
+```{r}
+#| label: fig-stability
+#| fig-cap: "The same data, three defensible modelling choices, three different answers."
+plot_rank_stability()
+```
+
+So the fragility is not a footnote. It is part of the finding: **provincial relationships
+cannot be read off national estimates, and 23 years of annual data cannot settle them
+either.**
+
+## What this is not
+
+This is a study of *statistical* relationships — whether series move together over time,
+and whether one helps predict another. It is not a measurement of how much emissions
+respond to growth, and "causality" here means predictive precedence in a technical sense,
+not physical causation. Nobody doubts that burning fuel emits carbon. The question is
+whether 23 years of provincial accounts can show it.
+
+---
+
+*This site reproduces and re-examines a 2023 Master's project at the University of
+Saskatchewan. The [reproduction page](reproduction.qmd) documents what was confirmed,
+what was corrected, and what could not be reproduced. All code and data are in the
+repository.*
