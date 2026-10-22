@@ -175,8 +175,9 @@ Two caveats carried over deliberately, both documented in `reference/`:
 
 ## Citation and licence
 
-Authorship, licence and citation are not yet settled — the underlying work is Sima
-Heidari's. Add `LICENSE` and `CITATION.cff` before making the repository public.
+The underlying work is Sima Heidari's. Code is MIT licensed; see
+[`LICENSE`](LICENSE) and [`CITATION.cff`](CITATION.cff).
 
 Data are redistributed under the Statistics Canada Open Licence and the Open Government
-Licence – Canada; see [`data/raw/PROVENANCE.md`](data/raw/PROVENANCE.md).
+Licence – Canada and are not covered by the MIT licence; see
+[`data/raw/PROVENANCE.md`](data/raw/PROVENANCE.md).

@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+title: >-
+  Greenhouse gas emissions, energy use and economic growth in
+  Canadian provinces
+message: >-
+  If you use this software or its results, please cite both the
+  underlying thesis and this repository.
+type: software
+authors:
+  - family-names: Heidari
+    given-names: Sima
+license: MIT
+abstract: >-
+  A reproducible reimplementation in R of the econometric analysis in
+  Sima Heidari's 2023 Master's project at the University of
+  Saskatchewan, testing cointegration and Granger causality between
+  greenhouse gas emissions, industrial energy use and real GDP across
+  ten Canadian provinces and nationally, 1997-2019.
+keywords:
+  - econometrics
+  - cointegration
+  - Granger causality
+  - greenhouse gas emissions
+  - energy economics
+  - Canada
+  - reproducibility
+references:
+  - type: thesis
+    title: Aggregation and Causality in Environmental Accounts
+    authors:
+      - family-names: Heidari
+        given-names: Sima
+    year: 2023
+    institution:
+      name: University of Saskatchewan
+    department: Department of Economics
+    thesis-type: Master's project
