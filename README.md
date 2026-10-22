@@ -17,7 +17,7 @@ the analysis in R from the surviving dataset.
 | Panel built | ✅ 11 jurisdictions × 23 years, complete |
 | Provenance recovered | ✅ StatCan table IDs and ECCC source, see [`data/raw/PROVENANCE.md`](data/raw/PROVENANCE.md) |
 | Thesis results extracted | ✅ machine-readable in [`reference/`](reference/) |
-| R + renv | ✅ R 4.6.1, 34 packages pinned in `renv.lock` |
+| R + renv | ✅ R 4.6.1, 73 packages pinned in `renv.lock` |
 | Unit roots (`02`) | ✅ all 66 thesis statistics reproduced exactly |
 | Cointegration (`03`) | ✅ Engle–Granger 11/11; Johansen 6 of 8 |
 | Causality (`04`) | ✅ all 77 p-values reproduced |
