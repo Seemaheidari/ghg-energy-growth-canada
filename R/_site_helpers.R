@@ -71,41 +71,66 @@ VERDICT_LAB  <- c(both    = "Found by both methods",
                   one     = "Found by one of the two",
                   neither = "Not found")
 
-# How many of the two methods find a lasting link in each jurisdiction.
+# How many of the two methods find a lasting link, plus what actually happened
+# to each jurisdiction between the first year and the last. The two are not the
+# same question -- one asks whether the series move together over the long run,
+# the other is simply end-to-end change -- but the numbers give the shading
+# something concrete to sit against.
 province_verdict <- function() {
   eg  <- read_result("engle_granger.csv") |> dplyr::select(geo, eg = thesis_coint)
   joh <- read_result("johansen.csv") |> dplyr::filter(K == 3) |>
     dplyr::transmute(geo, joh = implied_rank %in% 1:2)
+
+  change <- readr::read_csv("data/processed/panel.csv", show_col_types = FALSE) |>
+    dplyr::filter(in_study) |>
+    dplyr::group_by(geo) |>
+    dplyr::arrange(year) |>
+    dplyr::summarise(
+      d_gdp = 100 * (dplyr::last(gdp_real_2012) / dplyr::first(gdp_real_2012) - 1),
+      d_ghg = 100 * (dplyr::last(ghg_kt)        / dplyr::first(ghg_kt)        - 1),
+      .groups = "drop")
+
   dplyr::inner_join(eg, joh, by = "geo") |>
+    dplyr::inner_join(change, by = "geo") |>
     dplyr::mutate(verdict = dplyr::case_when(eg & joh ~ "both",
                                              eg | joh ~ "one",
                                              TRUE     ~ "neither"))
 }
 
+pct <- function(x) sprintf("%+.0f%%", x)
+
 plot_province_map <- function() {
   v <- province_verdict()
   d <- dplyr::inner_join(PROVINCE_GRID, v, by = "geo") |>
     dplyr::mutate(verdict = factor(verdict, names(VERDICT_FILL)))
-  canada <- dplyr::filter(v, geo == "Canada")
+  ca  <- dplyr::filter(v, geo == "Canada")
+  ink <- function(x) if (x == "neither") "#4A5058" else "white"
 
   ggplot(d, aes(col, row)) +
     geom_tile(aes(fill = verdict), colour = "white", linewidth = 2,
-              width = 0.98, height = 0.98) +
-    geom_text(aes(label = abbr, colour = verdict),
-              fontface = "bold", size = 6.2, nudge_y = -0.10) +
-    geom_text(aes(label = name, colour = verdict),
-              size = 2.9, nudge_y = 0.22) +
+              width = 0.97, height = 0.97) +
+    geom_text(aes(label = name, colour = verdict), size = 2.9, nudge_y = 0.34) +
+    geom_text(aes(label = abbr, colour = verdict), size = 5.6,
+              fontface = "bold", nudge_y = 0.13) +
+    geom_text(aes(label = paste("economy  ", pct(d_gdp)), colour = verdict),
+              size = 2.8, nudge_y = -0.17) +
+    geom_text(aes(label = paste("emissions", pct(d_ghg)), colour = verdict),
+              size = 2.8, fontface = "bold", nudge_y = -0.32) +
 
     # Canada is not a province; it sits apart, outlined rather than filled flat.
-    annotate("tile", x = 2.5, y = 2.6, width = 2.9, height = 0.98,
-             fill = VERDICT_FILL[[canada$verdict]], colour = "grey45",
+    annotate("tile", x = 2.5, y = 2.5, width = 2.9, height = 0.97,
+             fill = VERDICT_FILL[[ca$verdict]], colour = "grey45",
              linewidth = 0.5, linetype = "22") +
-    annotate("text", x = 2.5, y = 2.78, label = "CANADA",
-             fontface = "bold", size = 5.4,
-             colour = if (canada$verdict == "neither") "#4A5058" else "white") +
-    annotate("text", x = 2.5, y = 2.42, label = "the country as a whole",
-             size = 2.9,
-             colour = if (canada$verdict == "neither") "#4A5058" else "white") +
+    annotate("text", x = 2.5, y = 2.5 - 0.11, label = "CANADA",
+             fontface = "bold", size = 5.6, colour = ink(ca$verdict)) +
+    annotate("text", x = 2.5, y = 2.5 - 0.32, label = "the country as a whole",
+             size = 2.9, colour = ink(ca$verdict)) +
+    annotate("text", x = 2.5, y = 2.5 + 0.15,
+             label = paste("economy  ", pct(ca$d_gdp)),
+             size = 2.8, colour = ink(ca$verdict)) +
+    annotate("text", x = 2.5, y = 2.5 + 0.32,
+             label = paste("emissions", pct(ca$d_ghg)),
+             size = 2.8, fontface = "bold", colour = ink(ca$verdict)) +
 
     scale_fill_manual(values = VERDICT_FILL, labels = VERDICT_LAB,
                       drop = FALSE, name = NULL,
@@ -113,23 +138,26 @@ plot_province_map <- function() {
     scale_colour_manual(values = c(both = "white", one = "white",
                                    neither = "#4A5058"), guide = "none") +
     scale_y_reverse() +
-    coord_equal(clip = "off") +
     labs(
       title = "Does the economy still grow in step with emissions?",
-      subtitle = paste("Whether a lasting link between emissions, energy use",
-                       "and economic output could be\ndetected in each province",
-                       "between 1997 and 2019"),
-      caption = paste("Two standard statistical methods were used; they agree",
-                      "in only one province. \"Not found\" means\nthe link could",
-                      "not be detected in 23 years of data, not that none",
-                      "exists. Alberta and\nSaskatchewan, the oil producers,",
-                      "are among the provinces where it could not be found.")) +
+      subtitle = paste("Change between 1997 and 2019, and whether a lasting",
+                       "statistical link between\nemissions, energy use and",
+                       "economic output could be detected"),
+      caption = sprintf(paste(
+        "Every province grew; emissions rose in some and fell in others. The",
+        "shading answers a separate\nquestion -- whether the two move together",
+        "over the long run. Two standard methods were used:\nthey agree a link",
+        "is there in %d jurisdiction, agree it is not in %d, and disagree in the",
+        "remaining %d.\n\"Not found\" means the link could not be detected in 23",
+        "years of data, not that none exists."),
+        sum(v$verdict == "both"), sum(v$verdict == "neither"),
+        sum(v$verdict == "one"))) +
     theme_void(base_size = 12) +
     theme(legend.position = "top",
           legend.justification = "left",
           legend.key.size = unit(18, "pt"),
           legend.text = element_text(size = 10.5, margin = margin(l = 4, r = 14)),
-          legend.margin = margin(b = 8),
+          legend.margin = margin(b = 10),
           plot.title = element_text(face = "bold", size = 15.5),
           plot.subtitle = element_text(colour = "grey30", size = 11,
                                        margin = margin(b = 4)),
@@ -139,6 +167,7 @@ plot_province_map <- function() {
           plot.caption.position = "plot",
           plot.margin = margin(12, 12, 12, 12))
 }
+
 
 # How the answer moves with one arbitrary modelling choice. Stated as found or
 # not found rather than as a cointegrating rank: "rank 3", which the literature

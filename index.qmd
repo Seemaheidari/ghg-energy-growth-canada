@@ -18,8 +18,8 @@ The data say otherwise.
 ```{r}
 #| label: fig-map
 #| fig-cap: ""
-#| fig-width: 8.5
-#| fig-height: 6
+#| fig-width: 10
+#| fig-height: 7
 plot_province_map()
 ```
 
