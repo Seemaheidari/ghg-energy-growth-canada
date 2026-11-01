@@ -13,6 +13,12 @@ time this site is built.
 ## Long-run relationships
 
 ```{r}
+#| label: fig-eg
+#| fig-cap: "The Engle-Granger statistic by jurisdiction. More negative is stronger evidence; the dashed line is the 5% critical value."
+plot_eg()
+```
+
+```{r}
 #| label: tbl-coint
 #| tbl-cap: "Cointegration by jurisdiction. Engle-Granger rejects at -4.49; Johansen rank 1 or 2 means cointegration, 0 means none, 'full' means the system tests as stationary."
 eg  <- read_result("engle_granger.csv")

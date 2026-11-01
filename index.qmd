@@ -16,15 +16,17 @@ economies grow, emissions should grow with them.
 The data say otherwise.
 
 ```{r}
-#| label: fig-eg
-#| fig-cap: "Whether each jurisdiction shows a long-run relationship between emissions, energy use and output."
-plot_eg()
+#| label: fig-map
+#| fig-cap: ""
+#| fig-width: 8.5
+#| fig-height: 6
+plot_province_map()
 ```
 
-**Ontario shows the strongest relationship of any jurisdiction in the country. Saskatchewan
-shows the weakest.** Alberta sits in the middle of the pack, well short of significance.
-The two provinces where the connection between carbon and money is most obvious to the
-naked eye are the two where it is hardest to detect statistically.
+**Ontario is the only province where both methods agree the link is there. Alberta and
+Saskatchewan are among those where neither finds it.** The two provinces where the
+connection between carbon and money is most obvious to the naked eye are the two where it
+is hardest to detect in the numbers.
 
 ## The question
 
@@ -73,9 +75,11 @@ kind of econometrics, and it shows up everywhere in the results:
   conservative procedure, 3 survive.
 
 ```{r}
-#| label: fig-stability
-#| fig-cap: "The same data, three defensible modelling choices, three different answers."
-plot_rank_stability()
+#| label: fig-lag
+#| fig-cap: ""
+#| fig-width: 8
+#| fig-height: 5.4
+plot_lag_sensitivity()
 ```
 
 So the fragility is not a footnote. It is part of the finding: **provincial relationships
