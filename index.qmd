@@ -16,17 +16,26 @@ economies grow, emissions should grow with them.
 The data say otherwise.
 
 ```{r}
-#| label: fig-map
-#| fig-cap: ""
+#| label: province-map
 #| fig-width: 10
 #| fig-height: 7
 plot_province_map()
 ```
 
-**Ontario is the only province where both methods agree the link is there. Alberta and
+Every province's economy grew over these twenty-three years. What happened to their
+emissions did not follow suit. Alberta's output rose 82% and its emissions climbed 36%
+alongside it; Ontario's output rose 70% while its emissions *fell* 14%. Emissions rose
+across the four western provinces and Newfoundland, held flat in Quebec, and fell in
+Ontario and the Maritimes. Nothing in those numbers needs a statistics course to read,
+and the split they describe is why the oil-producing provinces behave differently in
+everything that follows.
+
+The shading is a different question, and a harder one: not whether emissions and output
+happened to move the same way, but whether they are *tied* to one another over the long
+run. **Ontario is the only province where both methods agree that they are. Alberta and
 Saskatchewan are among those where neither finds it.** The two provinces where the
-connection between carbon and money is most obvious to the naked eye are the two where it
-is hardest to detect in the numbers.
+connection between carbon and money seems most obvious to the naked eye are the two where
+it is hardest to establish in the data.
 
 ## The question
 
@@ -75,8 +84,7 @@ kind of econometrics, and it shows up everywhere in the results:
   conservative procedure, 3 survive.
 
 ```{r}
-#| label: fig-lag
-#| fig-cap: ""
+#| label: lag-sensitivity
 #| fig-width: 8
 #| fig-height: 5.4
 plot_lag_sensitivity()
